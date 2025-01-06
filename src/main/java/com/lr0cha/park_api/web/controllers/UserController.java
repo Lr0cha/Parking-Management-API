@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lr0cha.park_api.entities.User;
 import com.lr0cha.park_api.services.UserService;
+import com.lr0cha.park_api.web.dto.UserCreateDto;
+import com.lr0cha.park_api.web.dto.UserPasswordDto;
+import com.lr0cha.park_api.web.dto.UserResponseDto;
+import com.lr0cha.park_api.web.dto.mapper.UserMapper;
 
 @RestController
 @RequestMapping(value = "api/v1/usuarios")
@@ -23,27 +27,27 @@ public class UserController {
 	private UserService service;
 	
 	@GetMapping
-	public ResponseEntity <List<User>> findAll(){
-		List<User> user = service.findAll();
-		return ResponseEntity.ok().body(user);
+	public ResponseEntity <List<UserResponseDto>> findAll(){
+		List<User> users = service.findAll();
+		return ResponseEntity.ok().body(UserMapper.toListDto(users));
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<User> findById(@PathVariable Long id){
+	public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
 		User user = service.findById(id);
-		return ResponseEntity.ok().body(user);
+		return ResponseEntity.ok().body(UserMapper.toDto(user));
 	}
 	
 	
 	@PostMapping
-	public ResponseEntity<User> insert(@RequestBody User user){
-		user = service.insert(user);
-		return ResponseEntity.status(HttpStatus.CREATED).body(user);
+	public ResponseEntity<UserResponseDto> insert(@RequestBody UserCreateDto createDto){
+		User user = service.insert(UserMapper.toUser(createDto));
+		return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
 	}
 	
 	@PatchMapping(value = "/{id}")
-	public ResponseEntity<User> updatePassword(@PathVariable Long id, @RequestBody User user){
-		user = service.updatePassword(id, user.getPassword());
-		return ResponseEntity.ok().body(user);
+	public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UserPasswordDto dto){
+		service.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
+		return ResponseEntity.noContent().build();
 	}	
 }

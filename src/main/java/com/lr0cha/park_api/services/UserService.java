@@ -33,10 +33,15 @@ public class UserService {
 	}
 	
 	@Transactional
-	public User updatePassword(Long id, String password) {
+	public void updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
+		if(!newPassword.equals(confirmPassword)) {
+			throw new RuntimeException("Novas senhas não conferem!");
+		}
 		User user = findById(id);
-		user.setPassword(password);
-		return user;
+		if(!user.getPassword().equals(currentPassword)) {
+			throw new RuntimeException("Senha atual não confere!");
+		}
+		user.setPassword(newPassword);
 	}
 
 }
