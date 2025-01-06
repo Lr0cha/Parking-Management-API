@@ -3,10 +3,13 @@ package com.lr0cha.park_api.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lr0cha.park_api.entities.User;
+import com.lr0cha.park_api.exceptions.EntityNotFoundException;
+import com.lr0cha.park_api.exceptions.UsernameUniqueViolationException;
 import com.lr0cha.park_api.repositories.UserRepository;
 
 
@@ -24,12 +27,18 @@ public class UserService {
 	
 	@Transactional(readOnly = true)
 	public User findById(Long id) {
-		return repository.findById(id).get();
+		return repository.findById(id).orElseThrow(
+				() -> new EntityNotFoundException(String.format("Usuário com id %s não encontrado",id)));
 	}
 	
 	@Transactional
 	public User insert(User user) {
-		return repository.save(user);
+		try {
+			return repository.save(user);
+		}catch(DataIntegrityViolationException ex) {
+			throw new UsernameUniqueViolationException(String.format("Username %s já cadastrado", user.getUsername()));
+		}
+		
 	}
 	
 	@Transactional
