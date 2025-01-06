@@ -20,6 +20,8 @@ import com.lr0cha.park_api.web.dto.UserPasswordDto;
 import com.lr0cha.park_api.web.dto.UserResponseDto;
 import com.lr0cha.park_api.web.dto.mapper.UserMapper;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(value = "api/v1/usuarios")
 public class UserController {
@@ -40,13 +42,13 @@ public class UserController {
 	
 	
 	@PostMapping
-	public ResponseEntity<UserResponseDto> insert(@RequestBody UserCreateDto createDto){
+	public ResponseEntity<UserResponseDto> insert(@Valid @RequestBody UserCreateDto createDto){
 		User user = service.insert(UserMapper.toUser(createDto));
 		return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
 	}
 	
 	@PatchMapping(value = "/{id}")
-	public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UserPasswordDto dto){
+	public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto){
 		service.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
 		return ResponseEntity.noContent().build();
 	}	
